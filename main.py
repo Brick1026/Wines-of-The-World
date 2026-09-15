@@ -5,7 +5,6 @@ from load import load
 
 def main():
     load()
-    
     root = tk.Tk()
     root.resizable(height = True, width = True)
     root.title("Wine Curator") 

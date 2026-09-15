@@ -13,16 +13,7 @@ master_wine_data.json - Holds the result of the massive query on program start
 Wine Learning Algorithm Attributes:
 
     Nearest Neighbors Attributes:
-        wine -> String - (Ex: Red Newt)
-        grape -> String - (Ex: Reisling, Champagne, Pinot Noir)
-        color -> String - (Ex: Red, Orange, White,)
-        notes -> String - (Ex: green apple, jasmine, cherry)
-        aged -> boolean - (true or false)
-        pairings -> string - (Ex: pasta)
-        sweetness -> int - (1-10)
-        tannins -> int - (1-10)
-        body -> int - (1-10)
-        complexity -> int - (1-10)
+    
 
 
 Process:
