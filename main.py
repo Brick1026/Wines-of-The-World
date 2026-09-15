@@ -1,9 +1,11 @@
-import os
-# import sklearn as sk
-# import numpy as np
+# Main GUI runloop
+
 import tkinter as tk
+from load import load
 
 def main():
+    load()
+    
     root = tk.Tk()
     root.resizable(height = True, width = True)
     root.title("Wine Curator") 
