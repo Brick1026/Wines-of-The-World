@@ -21,7 +21,6 @@ Wine Learning Algorithm Attributes:
         "body": "Medium-bodied",
         "winery_name": "Roger Pouillon & Fils",
         "region_name": "Champagne",
-        "good pairings": "steak","pork"
 
 
 Process:

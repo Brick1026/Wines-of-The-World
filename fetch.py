@@ -31,9 +31,6 @@ def fetch():
 def query_thread(catalog):
     # randomly select a wine from catalog
     wine = random.choice(catalog)
-    # get estimated wine price
-    response = client.get("https://vinofyi.com/api/v1/")
-    response.raise_for_status()
     wine = {
         "wine": wine.get("name"),
         "type": wine.get("wine_type"),
