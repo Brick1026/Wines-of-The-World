@@ -13,7 +13,15 @@ master_wine_data.json - Holds the result of the massive query on program start
 Wine Learning Algorithm Attributes:
 
     Nearest Neighbors Attributes:
-    
+        "wine": "Les Valnons Brut Nature Champagne Grand Cru 'A\u00ff'",
+        "type": "Sparkling",
+        "acidity": "High",
+        "abv": "12.2",
+        "country_name": "France",
+        "body": "Medium-bodied",
+        "winery_name": "Roger Pouillon & Fils",
+        "region_name": "Champagne",
+        "good pairings": "steak","pork"
 
 
 Process:

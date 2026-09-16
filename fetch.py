@@ -15,10 +15,11 @@ wines = []
 
 def fetch():
     with httpx.Client(timeout=15.0) as client:
+        # get list of wines (our catalog)
         response = client.get("https://vinofyi.com/api/v1/wines/")
         response.raise_for_status()
         catalog = response.json()["results"]
-
+        
         with ThreadPoolExecutor(max_workers=4) as pool:
             for i in range(0,MASTER_DATA_SIZE + 1):
                 pool.submit(query_thread, catalog)
@@ -28,7 +29,11 @@ def fetch():
     
 # Thread to query database and then write it's result into array
 def query_thread(catalog):
+    # randomly select a wine from catalog
     wine = random.choice(catalog)
+    # get estimated wine price
+    response = client.get("https://vinofyi.com/api/v1/")
+    response.raise_for_status()
     wine = {
         "wine": wine.get("name"),
         "type": wine.get("wine_type"),
@@ -37,6 +42,7 @@ def query_thread(catalog):
         "country_name": wine.get("country_name"),
         "body": wine.get("body"),
         "winery_name": wine.get("winery_name"),
+        "region_name": wine.get("region_name")
     }
     with _WRITE_LOCK:
         wines.append(wine)
