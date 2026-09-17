@@ -17,18 +17,18 @@ def main():
     # defines the next avaliable grid slot used by question
     root.resizable(height = True, width = True)
     root.title("Wine Curator") 
-    root.geometry("800x800")
+    root.geometry("710x900")
     root.grid_propagate(False)
     root.grid_columnconfigure(0, weight=3)
     root.grid_columnconfigure(1, weight=1)
     
     # the quiz panel
-    quiz_frame = tk.Frame(root)
+    quiz_frame = tk.Frame(root,borderwidth=5, relief="ridge")
     # decorative panel
     side_panel = tk.Frame(root)
 
-    quiz_frame.grid(row=0, column=0, sticky="nsew")
-    side_panel.grid(row=0, column=1, sticky="nsew")
+    quiz_frame.grid(row=0, column=0, sticky="nsew",padx=10,pady=10)
+    side_panel.grid(row=0, column=1, sticky="nsew",padx=10,pady=10)
         
     img = Image.open("graphics\\Red_Wine.png")
     img = img.resize((300, 500), Image.LANCZOS)
@@ -96,7 +96,7 @@ def resize(event, root, side_panel):
                 object.config(font=("Arial", font_size))
                 object._font_size = font_size
     
-    if width < 600:
+    if width < 700:
         side_panel.grid_remove()
     else:
         side_panel.grid()   

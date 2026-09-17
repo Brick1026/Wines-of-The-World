@@ -26,7 +26,7 @@ class quiz:
         # create frame that holds all the buttons
         q1_frame = tk.Frame(root)
         q1_frame._font_scale = scalers[1]
-        q1_frame.grid(row=self.next_slot, column=0, sticky="n")
+        q1_frame.grid(row=self.next_slot, column=0, sticky="n" )
         self.next_slot+=1
         var = tk.StringVar(root,"None")
         
@@ -34,7 +34,7 @@ class quiz:
         for index, option in enumerate(options):
             opt = tk.Radiobutton(q1_frame, text=option[0],variable=var,value=option[1])
             opt._font_scale = scalers[index+2]
-            opt.grid(row=self.next_slot,column=index,sticky='ew')
+            opt.grid(row=self.next_slot,column=index,sticky='w')
             gui_objects.append(opt)
             
         self.next_slot+=1
