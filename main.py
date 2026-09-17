@@ -1,56 +1,30 @@
 # Main GUI runloop
 
 import tkinter as tk
-
+import quiz as q
 from load import load
-
-# param - array of n scalers for each element
-# 
-# Create a multiple choice question with a 
-def make_question():
-    return
-    
 
 # list of on screen gui objects
 gui_objects = []
-# scaler for gui objects relative to window
-scalers = [.013,.01,.01,.01,.01,.01,.01,.01]
 
 def main():
     
     load()
+    my_quiz = q.quiz()
+    
     root = tk.Tk()
+    # defines the next avaliable grid slot used by question
     root.resizable(height = True, width = True)
     root.title("Wine Curator") 
     root.grid_propagate(False)
     root.grid_columnconfigure(0, weight=1)
     root.grid_rowconfigure(1, weight=1)
     
-    # begin creating gui
-    q1_label = tk.Label(root,text="What is your prefered wine acidity")
-    q1_label.grid(row=0, column=0, pady=(10, 5))
-    q1_label._font_scale = scalers[0]
-    gui_objects.append(q1_label)
-    
-    q1_frame = tk.Frame(root)
-    q1_frame._font_scale = scalers[1]
-    q1_frame.grid(row=1, column=0, sticky="n")
-    acid_preference = tk.StringVar(root,"None")
-    
-    q1_ans1 = tk.Radiobutton(q1_frame, text="low",variable=acid_preference,value="low")
-    q1_ans1._font_scale = scalers[2]
-    q1_ans1.grid(row=0,column=0)
-    gui_objects.append(q1_ans1)
-    
-    q1_ans2 = tk.Radiobutton(q1_frame, text="medium",variable=acid_preference,value="medium")
-    q1_ans2._font_scale = scalers[3]
-    q1_ans2.grid(row=0,column=1)
-    gui_objects.append(q1_ans2)
-    
-    q1_ans3 = tk.Radiobutton(q1_frame, text="high",variable=acid_preference,value="high")
-    q1_ans3._font_scale = scalers[4]
-    q1_ans3.grid(row=0,column=2)
-    gui_objects.append(q1_ans3)
+    acid_preference = my_quiz.make_question(
+                          (.013,.01,.01,.01,.01),                # scalers for objects in question
+                          "What is your prefered wine acidity",  # question
+                          (["low",1],["medium",2],["high",3]),   # options
+                          gui_objects, root)                     # obligatory pass throughs                                 
     
     root.bind("<Configure>", lambda event: resize(event, root))
     root.after_idle(lambda: resize(None, root))
