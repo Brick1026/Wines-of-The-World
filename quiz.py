@@ -34,7 +34,7 @@ class quiz:
         for index, option in enumerate(options):
             opt = tk.Radiobutton(q1_frame, text=option[0],variable=var,value=option[1])
             opt._font_scale = scalers[index+2]
-            opt.grid(row=self.next_slot,column=index)
+            opt.grid(row=self.next_slot,column=index,sticky='ew')
             gui_objects.append(opt)
             
         self.next_slot+=1

@@ -3,12 +3,10 @@
 import tkinter as tk
 import quiz as q
 from load import load
+from PIL import Image, ImageTk
 
 # list of on screen gui objects
 gui_objects = []
-
-# fixed constant to make sure grid can fit all questions
-_QUIZ_SIZE = 10
 
 def main():
     
@@ -19,44 +17,70 @@ def main():
     # defines the next avaliable grid slot used by question
     root.resizable(height = True, width = True)
     root.title("Wine Curator") 
+    root.geometry("800x800")
     root.grid_propagate(False)
-    root.grid_columnconfigure(0, weight=1)
-    root.grid_rowconfigure(_QUIZ_SIZE, weight=1)
+    root.grid_columnconfigure(0, weight=3)
+    root.grid_columnconfigure(1, weight=1)
+    
+    # the quiz panel
+    quiz_frame = tk.Frame(root)
+    # decorative panel
+    side_panel = tk.Frame(root)
+
+    quiz_frame.grid(row=0, column=0, sticky="nsew")
+    side_panel.grid(row=0, column=1, sticky="nsew")
+        
+    img = Image.open("graphics\\Red_Wine.png")
+    img = img.resize((300, 500), Image.LANCZOS)
+    photo = ImageTk.PhotoImage(img)
+    img_label = tk.Label(side_panel,image=photo)
+    # have to declare even if not using
+    img_label._font_scale = 0 
+    img_label.pack(fill="both", expand=True)
+    gui_objects.append(img_label)
     
     type_preference = my_quiz.make_question(
                         (.013,.01,.01,.01,.01,.01,.01),                
-                        "What is your preferred wine type",     
+                        "What is your preferred wine type?",     
                         (["Fortified",1],["Red",2],["White",3],["Sparkling",4],["Dessert",5]), 
-                        gui_objects, root)                     
+                        gui_objects, quiz_frame)                     
     
     acid_preference = my_quiz.make_question(
                         (.013,.01,.01,.01,.01),                
-                        "What is your preferred wine acidity", 
-                        (["low",1],["medium",2],["high",3]),   
-                        gui_objects, root)                                                     
+                        "What is your preferred wine acidity?", 
+                        (["Low",1],["Medium",2],["High",3]),   
+                        gui_objects, quiz_frame)                                                     
     
     body_preference = my_quiz.make_question(
                         (.013,.01,.01,.01,.01),                
-                        "What is your preferred wine body", 
-                        (["light",1],["medium",2],["Full",3]),   
-                        gui_objects, root)    
+                        "What is your preferred wine body?", 
+                        (["Light",1],["Medium",2],["Full",3]),   
+                        gui_objects, quiz_frame)    
     
     abv_preference = my_quiz.make_question(
                         (.013,.01,.01,.01,.01),                
-                        "What is your preferred abv", 
-                        (["low (8-12.5%)",1],["medium (12.5-13.5%)",2],["high (13.5%+)",3]),   
-                        gui_objects, root)    
-
+                        "What is your preferred abv?", 
+                        (["Low (8-12.5%)",1],["Medium (12.5-13.5%)",2],["High (13.5%+)",3]),   
+                        gui_objects, quiz_frame)    
+    
+    world_preference = my_quiz.make_question(
+                        (.013,.01,.01,.01),                
+                        "Do you prefer old world or new world wine?", 
+                        (["Old World",1],["New World",2]),   
+                        gui_objects, quiz_frame)    
+   
 
     
-    root.bind("<Configure>", lambda event: resize(event, root))
-    root.after_idle(lambda: resize(None, root))
+    root.bind("<Configure>", lambda event: resize(event, root, side_panel))
+    root.after_idle(lambda: resize(None, root, side_panel))
     root.mainloop()
     
 
 # Resizes all widgets in GUI
-# param - takes the root window
-def resize(event, root):
+# param - The triggering event
+# param - The root winow
+# param - The side panel frame in the root window
+def resize(event, root, side_panel):
     # check event is not the initial setup none call
     # Check if the event is from the main window 
     # (otherwise do nothing)
@@ -65,11 +89,18 @@ def resize(event, root):
 
     width = root.winfo_width()
     for object in gui_objects:
+        # scale labels and buttons
         if isinstance(object,tk.Label) or isinstance(object,tk.Radiobutton):
-            font_size = max(10, int(width * object._font_scale))
+            font_size = max(7, int(width * object._font_scale))
             if getattr(object, "_font_size",None) != font_size:
                 object.config(font=("Arial", font_size))
                 object._font_size = font_size
+    
+    if width < 600:
+        side_panel.grid_remove()
+    else:
+        side_panel.grid()   
+       
                    
 if __name__ == "__main__":
     main()
