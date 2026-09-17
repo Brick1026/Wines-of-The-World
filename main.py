@@ -7,6 +7,9 @@ from load import load
 # list of on screen gui objects
 gui_objects = []
 
+# fixed constant to make sure grid can fit all questions
+_QUIZ_SIZE = 10
+
 def main():
     
     load()
@@ -18,13 +21,33 @@ def main():
     root.title("Wine Curator") 
     root.grid_propagate(False)
     root.grid_columnconfigure(0, weight=1)
-    root.grid_rowconfigure(1, weight=1)
+    root.grid_rowconfigure(_QUIZ_SIZE, weight=1)
+    
+    type_preference = my_quiz.make_question(
+                        (.013,.01,.01,.01,.01,.01,.01),                
+                        "What is your preferred wine type",     
+                        (["Fortified",1],["Red",2],["White",3],["Sparkling",4],["Dessert",5]), 
+                        gui_objects, root)                     
     
     acid_preference = my_quiz.make_question(
-                          (.013,.01,.01,.01,.01),                # scalers for objects in question
-                          "What is your prefered wine acidity",  # question
-                          (["low",1],["medium",2],["high",3]),   # options
-                          gui_objects, root)                     # obligatory pass throughs                                 
+                        (.013,.01,.01,.01,.01),                
+                        "What is your preferred wine acidity", 
+                        (["low",1],["medium",2],["high",3]),   
+                        gui_objects, root)                                                     
+    
+    body_preference = my_quiz.make_question(
+                        (.013,.01,.01,.01,.01),                
+                        "What is your preferred wine body", 
+                        (["light",1],["medium",2],["Full",3]),   
+                        gui_objects, root)    
+    
+    abv_preference = my_quiz.make_question(
+                        (.013,.01,.01,.01,.01),                
+                        "What is your preferred abv", 
+                        (["low (8-12.5%)",1],["medium (12.5-13.5%)",2],["high (13.5%+)",3]),   
+                        gui_objects, root)    
+
+
     
     root.bind("<Configure>", lambda event: resize(event, root))
     root.after_idle(lambda: resize(None, root))
