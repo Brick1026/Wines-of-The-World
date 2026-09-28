@@ -66,26 +66,28 @@ def main():
                         (.013,.01,.01,.01,.01),                
                         "What is your preferred wine acidity?", 
                         (["Low",1],["Medium",2],["High",3]),   
-                        gui_objects, quiz_frame)                                                     
-    
+                        gui_objects, quiz_frame)         
+                                                
+    abv_preference = my_quiz.make_question(
+                        (.013,.01,.01,.01,.01),                
+                        "What is your preferred abv?", 
+                        (["Low (8-12.5%)",1],["Medium (12.5-13.5%)",2],["High (13.5%+)",3]),   
+                        gui_objects, quiz_frame)    
+        
     body_preference = my_quiz.make_question(
                         (.013,.01,.01,.01,.01),                
                         "What is your preferred wine body?", 
                         (["Light",1],["Medium",2],["Full",3]),   
                         gui_objects, quiz_frame)    
     
-    abv_preference = my_quiz.make_question(
-                        (.013,.01,.01,.01,.01),                
-                        "What is your preferred abv?", 
-                        (["Low (8-12.5%)",1],["Medium (12.5-13.5%)",2],["High (13.5%+)",3]),   
-                        gui_objects, quiz_frame)    
     
     world_preference = my_quiz.make_question(
                         (.013,.01,.01,.01),                
                         "Do you prefer old world or new world wine?", 
                         (["Old World",1],["New World",2]),   
                         gui_objects, quiz_frame)    
-   
+    
+    # add grape preference question
 
     # configure the lambda event to call resize on configure
     root.bind("<Configure>", lambda event: resize(event, root, side_panel))

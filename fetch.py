@@ -11,6 +11,31 @@ _WRITE_LOCK = threading.Lock()
 # how large of a set of wines do we want
 MASTER_DATA_SIZE = 10000
 
+GRAPE_TYPES = {
+    "cabernet franc",
+    "cabernet sauvignon",
+    "chardonnay",
+    "gamay",
+    "gewurztraminer",
+    "grenache",
+    "malbec",
+    "merlot",
+    "mourvedre",
+    "petite sirah",
+    "pinot grigio",
+    "pinot gris",
+    "pinot noir",
+    "riesling",
+    "sangiovese",
+    "sauvignon blanc",
+    "semillon",
+    "shiraz",
+    "syrah",
+    "tempranillo",
+    "viognier",
+    "zinfandel",
+}
+
 wines = []
 
 def fetch():
@@ -31,8 +56,11 @@ def fetch():
 def query_thread(catalog):
     # randomly select a wine from catalog
     wine = random.choice(catalog)
+    name = wine.get("name")
+    name_lower = str(name or "").casefold()
     wine = {
-        "wine": wine.get("name"),
+        "wine": name,
+        "grapes": sorted(grape for grape in GRAPE_TYPES if grape in name_lower),
         "type": wine.get("wine_type"),
         "acidity": wine.get("acidity"),
         "abv": wine.get("abv"),
