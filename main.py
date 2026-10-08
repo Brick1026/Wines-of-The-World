@@ -26,7 +26,15 @@ def main():
     
     
     # the quiz panel
-    quiz_frame = tk.Frame(root,borderwidth=5, relief="ridge")
+    quiz_frame = tk.Frame(
+        root,
+        borderwidth=1,
+        relief="solid",
+        highlightthickness=1,
+        highlightbackground="#2B2B2B",
+        highlightcolor="#2B2B2B",
+        bg="#EBE9EC"
+    )
     # make objects in quiz grid center
     quiz_frame.grid_columnconfigure(0, weight=1)
     
@@ -43,11 +51,15 @@ def main():
                 root,
                 text="Wines of The World",
                 font=("Arial", 24, "bold"),
-                anchor="center"
+                anchor="center",
+                bg="#2B2B2B",
+                fg="#F2F2F2",
+                padx=12,
+                pady=12,
             )
     
     # define the overall page layout
-    title.grid(row=0, column=0, columnspan=2, sticky="ew", padx=10, pady=(10, 5))
+    title.grid(row=0, column=0, columnspan=2, sticky="ew")
     quiz_frame.grid(row=1, column=0, sticky="nsew",padx=10,pady=10)
     side_panel.grid(row=1, column=1, sticky="nsew",padx=10,pady=10)
     
@@ -56,38 +68,40 @@ def main():
     img_label.pack(fill="both", expand=True)
     gui_objects.append(img_label)
     
-    type_preference = my_quiz.make_question(
+    type_preference = my_quiz.make_mult_choice_question(
                         (.013,.01,.01,.01,.01,.01,.01),                
                         "What is your preferred wine type?",     
                         (["Fortified",1],["Red",2],["White",3],["Sparkling",4],["Dessert",5]), 
                         gui_objects, quiz_frame)                     
     
-    acid_preference = my_quiz.make_question(
+    acid_preference = my_quiz.make_mult_choice_question(
                         (.013,.01,.01,.01,.01),                
                         "What is your preferred wine acidity?", 
                         (["Low",1],["Medium",2],["High",3]),   
                         gui_objects, quiz_frame)         
                                                 
-    abv_preference = my_quiz.make_question(
+    abv_preference = my_quiz.make_mult_choice_question(
                         (.013,.01,.01,.01,.01),                
                         "What is your preferred abv?", 
                         (["Low (8-12.5%)",1],["Medium (12.5-13.5%)",2],["High (13.5%+)",3]),   
                         gui_objects, quiz_frame)    
         
-    body_preference = my_quiz.make_question(
+    body_preference = my_quiz.make_mult_choice_question(
                         (.013,.01,.01,.01,.01),                
                         "What is your preferred wine body?", 
                         (["Light",1],["Medium",2],["Full",3]),   
                         gui_objects, quiz_frame)    
     
     
-    world_preference = my_quiz.make_question(
+    world_preference = my_quiz.make_mult_choice_question(
                         (.013,.01,.01,.01),                
                         "Do you prefer old world or new world wine?", 
                         (["Old World",1],["New World",2]),   
                         gui_objects, quiz_frame)    
     
     # add grape preference question
+    
+    
 
     # configure the lambda event to call resize on configure
     root.bind("<Configure>", lambda event: resize(event, root, side_panel))

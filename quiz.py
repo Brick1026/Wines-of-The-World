@@ -15,9 +15,9 @@ class quiz:
     # param - {root} the root to build the quiz on
     # return tk.StringVar to moniter the value
     # Create a multiple choice question with n adjacent multiple choice options
-    def make_question(self,scalers,question,options,gui_objects,root):
+    def make_mult_choice_question(self,scalers,question,options,gui_objects,root):
         # begin creating gui
-        q1_label = tk.Label(root,text=question)
+        q1_label = tk.Label(root,text=question,bg="#EBE9EC")
         q1_label.grid(row=self.next_slot, column=0, pady=(10, 5))
         self.next_slot+=1
         q1_label._font_scale = scalers[0]
@@ -32,7 +32,11 @@ class quiz:
         
         # for each button defined in options make a button
         for index, option in enumerate(options):
-            opt = tk.Radiobutton(q1_frame, text=option[0],variable=var,value=option[1])
+            opt = tk.Radiobutton(q1_frame, 
+                                 text=option[0],
+                                 variable=var,
+                                 value=option[1],
+                                 bg="#EBE9EC")
             opt._font_scale = scalers[index+2]
             opt.grid(row=self.next_slot,column=index,sticky='w')
             gui_objects.append(opt)
@@ -40,3 +44,20 @@ class quiz:
         self.next_slot+=1
         return var
     
+    # param - {duple of int} scalers that influence font size
+    # param - {string} question for the label
+    # param - {2d array of strings} for each button name and value [0] = name [1] = value
+    # param - {array of objects} the array containing all of the gui objects, 
+    #                            just so we can append to it
+    # param - {root} the root to build the quiz on
+    # return tk.StringVar to moniter the value
+    # Create a multiple choice question with n adjacent multiple choice options
+    def make_fill_in_the_blank_question(self,scalers,question,gui_objects,root):
+         # begin creating gui
+        q1_label = tk.Label(root,text=question,bg="#EBE9EC")
+        q1_label.grid(row=self.next_slot, column=0, pady=(10, 5))
+        self.next_slot+=1
+        q1_label._font_scale = scalers[0]
+        gui_objects.append(q1_label)
+        
+        
