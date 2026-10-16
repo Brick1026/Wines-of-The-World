@@ -4,8 +4,10 @@ import tkinter as tk
 from tkinter import Listbox, ttk
 from fetch import get_grapes
 import quiz as q
+import recommender as r
 from load import load
 from PIL import Image, ImageTk
+
 
 # list of on screen gui objects
 gui_objects = []
@@ -13,9 +15,8 @@ gui_objects = []
 def main():
     
     load()
-    my_quiz = q.quiz()
-    
     root = tk.Tk()
+    my_quiz = q.quiz(root)
     
     # defines the next avaliable grid slot used by question
     root.resizable(height = True, width = True)
@@ -25,19 +26,6 @@ def main():
     root.grid_columnconfigure(0, weight=1)
     root.grid_columnconfigure(1, weight=1)
     
-    
-    # the quiz panel
-    quiz_frame = tk.Frame(
-        root,
-        borderwidth=1,
-        relief="solid",
-        highlightthickness=1,
-        highlightbackground="#2B2B2B",
-        highlightcolor="#2B2B2B",
-        bg="#EBE9EC"
-    )
-    # make objects in quiz grid center
-    quiz_frame.grid_columnconfigure(0, weight=1)
     
     # decorative panel
     side_panel = tk.Frame(root)
@@ -61,7 +49,6 @@ def main():
     
     # define the overall page layout
     title.grid(row=0, column=0, columnspan=2, sticky="ew")
-    quiz_frame.grid(row=1, column=0, sticky="nsew",padx=10,pady=10)
     side_panel.grid(row=1, column=1, sticky="nsew",padx=10,pady=10)
     
     # have to declare even if not using
@@ -73,32 +60,38 @@ def main():
                         (.013,.01,.01,.01,.01,.01,.01),                
                         "What is your preferred wine type?",     
                         (["Fortified",1],["Red",2],["White",3],["Sparkling",4],["Dessert",5]), 
-                        gui_objects, quiz_frame)                     
+                        gui_objects)                     
     
     acid_preference = my_quiz.make_mult_choice_question(
                         (.013,.01,.01,.01,.01),                
                         "What is your preferred wine acidity?", 
                         (["Low",1],["Medium",2],["High",3]),   
-                        gui_objects, quiz_frame)         
+                        gui_objects)  
+    
+    sweetness_preference = my_quiz.make_mult_choice_question(
+                            (.013,.01,.01,.01,.01),                
+                            "What is your preferred wine sweetness?", 
+                            (["Dry",1],["Semi",2],["Sweet",3]),   
+                            gui_objects)        
                                                 
     abv_preference = my_quiz.make_mult_choice_question(
                         (.013,.01,.01,.01,.01),                
                         "What is your preferred abv?", 
                         (["Low (0-12.5%)",1],["Medium (12.5-13.5%)",2],["High (13.5%+)",3]),   
-                        gui_objects, quiz_frame)    
+                        gui_objects)    
         
     body_preference = my_quiz.make_mult_choice_question(
                         (.013,.01,.01,.01,.01),                
                         "What is your preferred wine body?", 
                         (["Light",1],["Medium",2],["Full",3]),   
-                        gui_objects, quiz_frame)    
+                        gui_objects)    
     
     
     world_preference = my_quiz.make_mult_choice_question(
                         (.013,.01,.01,.01),                
                         "Do you prefer old world or new world wine?", 
                         (["Old World",1],["New World",2]),   
-                        gui_objects, quiz_frame)    
+                        gui_objects)    
     
     # add grape preference question
     query_grapes = get_grapes()
@@ -107,13 +100,37 @@ def main():
                         (.013,.01,.01),
                         "Choose your favorite of these grapes!",
                         query_array,
-                        gui_objects, quiz_frame)
-    
+                        gui_objects)
 
+    answers = (type_preference,
+            acid_preference,
+            sweetness_preference,
+            abv_preference,
+            body_preference,
+            world_preference,
+            grape_preference)
+        
+    my_quiz.make_submit_button(.013,
+                               "Recommend me!",
+                               answers,gui_objects,
+                               get_recommend_window)
+    
     # configure the lambda event to call resize on configure
     root.bind("<Configure>", lambda event: resize(event, root, side_panel))
     root.after_idle(lambda: resize(None, root, side_panel))
     root.mainloop()
+
+# Creates a top level recommendation window
+# param - root window
+# param - survey answers
+def get_recommend_window(root,answers):
+    recommender = r.recommender()
+    samples = recommender.build_sample_matrix(answers)
+    user_sample = recommender.build_user_sample(answers)
+    
+    rec_window = tk.Toplevel(root)
+    rec_window.title("Recommendation")
+    rec_window.geometry("250x250")
     
 
 # Resizes all widgets in GUI
@@ -133,8 +150,9 @@ def resize(event, root, side_panel):
         # scale labels and buttons
         if (isinstance(object,tk.Label) or 
         isinstance(object,tk.Radiobutton) or
-        isinstance(object,tk.Listbox)):
-            font_size = max(7, int(width * object._font_scale))
+        isinstance(object,tk.Listbox) or
+        isinstance(object,tk.Button)):
+            font_size = max(7, int(width * object._font_scale)-3)
             if getattr(object, "_font_size",None) != font_size:
                 object.config(font=("Arial", font_size))
                 object._font_size = font_size
@@ -148,6 +166,7 @@ def resize(event, root, side_panel):
     else:
         side_panel.grid()   
        
-                   
+             
 if __name__ == "__main__":
     main()
+    
