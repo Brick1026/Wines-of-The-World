@@ -1,7 +1,8 @@
 # Main GUI runloop
 
 import tkinter as tk
-from tkinter import ttk
+from tkinter import Listbox, ttk
+from fetch import get_grapes
 import quiz as q
 from load import load
 from PIL import Image, ImageTk
@@ -83,7 +84,7 @@ def main():
     abv_preference = my_quiz.make_mult_choice_question(
                         (.013,.01,.01,.01,.01),                
                         "What is your preferred abv?", 
-                        (["Low (8-12.5%)",1],["Medium (12.5-13.5%)",2],["High (13.5%+)",3]),   
+                        (["Low (0-12.5%)",1],["Medium (12.5-13.5%)",2],["High (13.5%+)",3]),   
                         gui_objects, quiz_frame)    
         
     body_preference = my_quiz.make_mult_choice_question(
@@ -100,7 +101,13 @@ def main():
                         gui_objects, quiz_frame)    
     
     # add grape preference question
-    
+    query_grapes = get_grapes()
+    query_array = sorted(query_grapes.items(), key=lambda item: item[0].casefold())
+    grape_preference = my_quiz.make_mult_select_question(
+                        (.013,.01,.01),
+                        "Choose your favorite of these grapes!",
+                        query_array,
+                        gui_objects, quiz_frame)
     
 
     # configure the lambda event to call resize on configure
@@ -124,11 +131,16 @@ def resize(event, root, side_panel):
     width = root.winfo_width()
     for object in gui_objects:
         # scale labels and buttons
-        if isinstance(object,tk.Label) or isinstance(object,tk.Radiobutton):
+        if (isinstance(object,tk.Label) or 
+        isinstance(object,tk.Radiobutton) or
+        isinstance(object,tk.Listbox)):
             font_size = max(7, int(width * object._font_scale))
             if getattr(object, "_font_size",None) != font_size:
                 object.config(font=("Arial", font_size))
                 object._font_size = font_size
+        else:
+            raise ValueError("Unrecognized tk module at resize")
+            
     
     # removes the decorative image if not enough space to fit
     if width < 700:
