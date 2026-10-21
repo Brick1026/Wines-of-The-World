@@ -179,7 +179,7 @@ def map_alcohol(percent):
     return "High"
 
 
-# fetch data rom open API
+# fetch data from open API
 def fetch():
     seen_entries.clear()
 
@@ -212,6 +212,7 @@ def fetch():
 def random_thread(catalog):
     global grape_id
     while True:
+        # select a random wine from my catalog
         wine = random.choice(catalog)
         wine_id = wine.get("id")
         if wine_id is None:
@@ -223,7 +224,7 @@ def random_thread(catalog):
                 continue
             seen_entries[wine_id] = True
             break
-
+    # Build JSON entry
     name = wine.get("name")
     abv = wine.get("abv")
     wine_data = {

@@ -26,7 +26,6 @@ def main():
     root.grid_columnconfigure(0, weight=1)
     root.grid_columnconfigure(1, weight=1)
     
-    
     # decorative panel
     side_panel = tk.Frame(root)
     # populate decorative panel
