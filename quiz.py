@@ -1,4 +1,9 @@
+from math import inf
 import tkinter as tk
+
+import numpy as np
+import recommender as r
+from statistics import mean
 
 class quiz:
     # the next avaliable row in the frame
@@ -111,17 +116,38 @@ class quiz:
     # Creates the survey submit button
     # param - int scaler for font size
     # param - text on the button
-    # param - the survey answers
+    # param - the survey answer variables and widgets
     # param - the lsit of gui objects from main
     # param - the function the submit button calls
     # param - the root window
-    def make_submit_button(self,scaler,button_text,answers,gui_objects,function):
+    def make_submit_button(self,scaler,button_text,answer_widgets,gui_objects,function):
+        # when we submit answers, unpack them as their integer values and pass to 
+        # function to start recommender algorithm
+        def submit_answers():
+            # unpack my widget elements
+            answers = tuple(
+                # if this is a listBox then we make a list of floats
+                tuple(widget.get(index) for index in widget.curselection())
+                if isinstance(widget, tk.Listbox)
+                else (
+                    # before calling n nearest neighbors we will imputer the data
+                    None
+                    if widget.get() in (None,"None")
+                    # otherwise assign the float value
+                    else float(widget.get())
+                )
+                for widget in answer_widgets
+            )
+            # launch get_recommender window
+            function(self.quiz_frame, answers)
+
         # build the submit button bound to the passed function
         submit = tk.Button(self.quiz_frame, text=button_text, 
-                           command=lambda: function(self.quiz_frame, answers),
+                           command=submit_answers,
                            bg="#EBE9EC")
         submit.grid(row=self.next_slot, column=0, sticky="nsew",padx=10,pady=10)
         submit._font_scale = scaler
         self.next_slot+=1
         gui_objects.append(submit)
+
             

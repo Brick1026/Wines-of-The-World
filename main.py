@@ -12,6 +12,8 @@ from PIL import Image, ImageTk
 # list of on screen gui objects
 gui_objects = []
 
+recommender = r.recommender()
+
 def main():
     
     load()
@@ -58,38 +60,51 @@ def main():
     type_preference = my_quiz.make_mult_choice_question(
                         (.013,.01,.01,.01,.01,.01,.01),                
                         "What is your preferred wine type?",     
-                        (["Fortified",1],["Red",2],["White",3],["Sparkling",4],["Dessert",5]), 
+                        (["Fortified",recommender.get_value("type", "fortified")],
+                         ["Red",recommender.get_value("type", "red")],
+                         ["White",recommender.get_value("type", "white")],
+                         ["Sparkling",recommender.get_value("type", "sparkling")],
+                         ["Dessert",recommender.get_value("type", "dessert")]),
                         gui_objects)                     
     
     acid_preference = my_quiz.make_mult_choice_question(
                         (.013,.01,.01,.01,.01),                
                         "What is your preferred wine acidity?", 
-                        (["Low",1],["Medium",2],["High",3]),   
+                        (["Low",recommender.get_value("acidity", "low")],
+                         ["Medium",recommender.get_value("acidity", "medium")],
+                         ["High",recommender.get_value("acidity", "high")]),
                         gui_objects)  
     
     sweetness_preference = my_quiz.make_mult_choice_question(
                             (.013,.01,.01,.01,.01),                
                             "What is your preferred wine sweetness?", 
-                            (["Dry",1],["Semi",2],["Sweet",3]),   
+                            (["Dry",recommender.get_value("sweetness", "dry")],
+                             ["Semi",recommender.get_value("sweetness", "semi")],
+                             ["Sweet",recommender.get_value("sweetness", "sweet")]),
                             gui_objects)        
                                                 
     abv_preference = my_quiz.make_mult_choice_question(
                         (.013,.01,.01,.01,.01),                
                         "What is your preferred abv?", 
-                        (["Low (0-12.5%)",1],["Medium (12.5-13.5%)",2],["High (13.5%+)",3]),   
+                        (["Low (0-12.5%)",recommender.get_value("abv", "low")],
+                         ["Medium (12.5-13.5%)",recommender.get_value("abv", "medium")],
+                         ["High (13.5%+)",recommender.get_value("abv", "high")]),
                         gui_objects)    
         
     body_preference = my_quiz.make_mult_choice_question(
                         (.013,.01,.01,.01,.01),                
                         "What is your preferred wine body?", 
-                        (["Light",1],["Medium",2],["Full",3]),   
+                        (["Light",recommender.get_value("body", "light-bodied")],
+                         ["Medium",recommender.get_value("body", "medium-bodied")],
+                         ["Full",recommender.get_value("body", "full-bodied")]),
                         gui_objects)    
     
     
     world_preference = my_quiz.make_mult_choice_question(
                         (.013,.01,.01,.01),                
                         "Do you prefer old world or new world wine?", 
-                        (["Old World",1],["New World",2]),   
+                        (["Old World",recommender.get_value("world", "old world")],
+                         ["New World",recommender.get_value("world", "new world")]),
                         gui_objects)    
     
     # add grape preference question
@@ -108,7 +123,7 @@ def main():
             body_preference,
             world_preference,
             grape_preference)
-        
+
     my_quiz.make_submit_button(.013,
                                "Recommend me!",
                                answers,gui_objects,
@@ -123,10 +138,9 @@ def main():
 # param - root window
 # param - survey answers
 def get_recommend_window(root,answers):
-    recommender = r.recommender()
-    samples = recommender.build_sample_matrix()
     user_sample = recommender.build_user_sample(answers)
-    
+    samples = recommender.build_sample_matrix(answers)
+
     rec_window = tk.Toplevel(root)
     rec_window.title("Recommendation")
     rec_window.geometry("250x250")

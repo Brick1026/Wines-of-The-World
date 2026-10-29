@@ -238,6 +238,7 @@ def random_thread(catalog):
         "body": wine.get("body"),
         "winery_name": wine.get("winery_name"),
         "region_name": wine.get("region_name")
+        # TODO: Add "world" attribute build from region and country. Maybe couuntry lookup api?
     }
     with _WRITE_LOCK:
         # save grapes in grape hashset
