@@ -124,7 +124,7 @@ def main():
 # param - survey answers
 def get_recommend_window(root,answers):
     recommender = r.recommender()
-    samples = recommender.build_sample_matrix(answers)
+    samples = recommender.build_sample_matrix()
     user_sample = recommender.build_user_sample(answers)
     
     rec_window = tk.Toplevel(root)

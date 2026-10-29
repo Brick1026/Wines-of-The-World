@@ -5,9 +5,8 @@ from tkinter import ttk
 import threading
 from fetch import fetch as f
 
-_loading = None
-
 class load():
+    _loading = None
     # Initialize loading window and pawn thread to query
     def __init__(self):
         self._loading = tk.Tk()
