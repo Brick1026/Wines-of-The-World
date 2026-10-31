@@ -5,7 +5,10 @@ import httpx
 import json
 import re
 import random
+from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
+
+MASTER_WINE_DATA_PATH = Path(__file__).resolve().parent / "Data" / "master_wine_data.json"
 
 # list of all distinct grapes found during fetch with an assigned value
 query_grapes = {}
@@ -146,6 +149,71 @@ SWEETNESS_KEYWORDS = {
     ),
 }
 
+COUNTRY_WORLDS = {
+    "Algeria": "Old World",
+    "Argentina": "New World",
+    "Armenia": "Old World",
+    "Australia": "New World",
+    "Austria": "Old World",
+    "Azerbaijan": "Old World",
+    "Belgium": "Old World",
+    "Bolivia": "New World",
+    "Bosnia and Herzegovina": "Old World",
+    "Brazil": "New World",
+    "Bulgaria": "Old World",
+    "Canada": "New World",
+    "Chile": "New World",
+    "China": "New World",
+    "Croatia": "Old World",
+    "Cyprus": "Old World",
+    "Czech Republic": "Old World",
+    "Czechia": "Old World",
+    "Egypt": "Old World",
+    "England": "Old World",
+    "France": "Old World",
+    "Georgia": "Old World",
+    "Germany": "Old World",
+    "Greece": "Old World",
+    "Hungary": "Old World",
+    "India": "New World",
+    "Israel": "Old World",
+    "Italy": "Old World",
+    "Japan": "New World",
+    "Lebanon": "Old World",
+    "Luxembourg": "Old World",
+    "Malta": "Old World",
+    "Mexico": "New World",
+    "Moldova": "Old World",
+    "Montenegro": "Old World",
+    "Morocco": "Old World",
+    "Namibia": "New World",
+    "Netherlands": "Old World",
+    "New Zealand": "New World",
+    "North Macedonia": "Old World",
+    "Peru": "New World",
+    "Poland": "Old World",
+    "Portugal": "Old World",
+    "Romania": "Old World",
+    "Russia": "Old World",
+    "Serbia": "Old World",
+    "Slovakia": "Old World",
+    "Slovenia": "Old World",
+    "South Africa": "New World",
+    "Spain": "Old World",
+    "Switzerland": "Old World",
+    "Tunisia": "Old World",
+    "Turkey": "Old World",
+    "Ukraine": "Old World",
+    "United Kingdom": "Old World",
+    "United States": "New World",
+    "United States of America": "New World",
+    "Uruguay": "New World",
+}
+
+_COUNTRY_WORLDS_NORMALIZED = {
+    country.casefold(): world for country, world in COUNTRY_WORLDS.items()
+}
+
 wines = []
 
 # return sweetness by checking name for sweetness keywords
@@ -179,6 +247,11 @@ def map_alcohol(percent):
     return "High"
 
 
+def map_world(country):
+    country_name = str(country or "").strip().casefold()
+    return _COUNTRY_WORLDS_NORMALIZED.get(country_name, "Unknown")
+
+
 # fetch data from open API
 def fetch():
     seen_entries.clear()
@@ -205,7 +278,7 @@ def fetch():
                 # throw away result
                 future.result()
 
-    with open('Data\\master_wine_data.json', "w") as file:
+    with MASTER_WINE_DATA_PATH.open("w", encoding="utf-8") as file:
         json.dump(wines, file, indent=4)
     
 # Thread to query catalog and then write it's result into json
@@ -235,10 +308,10 @@ def random_thread(catalog):
         "acidity": wine.get("acidity"),
         "abv": map_alcohol(float(abv)),
         "country_name": wine.get("country_name"),
+        "world": map_world(wine.get("country_name")),
         "body": wine.get("body"),
         "winery_name": wine.get("winery_name"),
         "region_name": wine.get("region_name")
-        # TODO: Add "world" attribute build from region and country. Maybe couuntry lookup api?
     }
     with _WRITE_LOCK:
         # save grapes in grape hashset

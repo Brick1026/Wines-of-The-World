@@ -1,6 +1,11 @@
 import json
-
+from pathlib import Path
+from tkinter import N
 import numpy as np
+from sklearn.neighbors import NearestNeighbors
+from sklearn.impute import SimpleImputer
+
+MASTER_WINE_DATA_PATH = Path(__file__).resolve().parent / "Data" / "master_wine_data.json"
 
 # Class to take master_wine_data.json and 
 # using the survey answers convert the qualitative data
@@ -11,28 +16,32 @@ class recommender:
     # if you want to weight things differently change them here and it will effect the rest
     # of the program
     
-    # since this is a nearest neigbors algorithm I tried to put similar
+    # since this is a nearest neighbors algorithm I tried to put similar
     # attributes nearby (even though not all of these are related)
     # by increasing the value range you can increase the importance of an attribute!
     
     # Translation dictionary from survey labels to their assigned numeric values.
+    
+    
     value_dict = {
+        #important attribute
         "type": {
             "red": 1,
-            "white": 1.5,
-            "sparkling": 2,
-            "dessert": 2.5,
-            "fortified": 3,
+            "white": 2,
+            "sparkling": 3,
+            "dessert": 4,
+            "fortified": 5,
         },
         "acidity": {
             "low": 1,
             "medium": 2,
             "high": 3,
         },
+        # very important attribute
         "sweetness": {
             "dry": 1,
-            "semi": 3,
-            "sweet": 5,
+            "semi": 5,
+            "sweet": 10,
         },
         "abv": {
             "low": 1,
@@ -48,11 +57,16 @@ class recommender:
             "old world": 1,
             "new world": 3,
         },
+        # very important attribute
         "liked_grapes": {
             "without": 1,
-            "with": 5
+            "with": 10
         }
     }
+    
+    # assigned when sample matrix is built, contains all of the wines
+    # in the JSON file as a python array
+    wines = None
 
     # param - the answers, we need to know what grapes they liked
     # return - np array where each master_wine_json sample has its attributes
@@ -60,9 +74,9 @@ class recommender:
     def build_sample_matrix(self,answers):
         arr_samples = []
         # unpack JSON and begin building data matrix
-        with open('Data\\master_wine_data.json', "r") as file:
-            wines = json.load(file)
-            for wine in wines:
+        with MASTER_WINE_DATA_PATH.open("r", encoding="utf-8") as file:
+            self.wines = json.load(file)
+            for wine in self.wines:
                 common_grapes = "without"
                 # see if there are common grapes between user preferences and sample
                 for grape in wine.get("grapes"):
@@ -81,7 +95,7 @@ class recommender:
                 ]))
         return np.asarray(arr_samples)
        
-    # param - survey results as a tuple of quesion answers
+    # param - survey results as a tuple of question answers
     # return - 2D NP array with one row representing the user 
     #          sample
     def build_user_sample(self, answers):
@@ -108,6 +122,21 @@ class recommender:
     # param - user_sample
     # param - samples array
     # return - the recommendation indices ordered from best to worst
-    def get_index_of_recommendation(user_sample,samples):
-        # TODO: SCIKIT LEARN RECOMMENDER ALGO
-        print("todo")
+    def get_indices_of_recommendations(self,user_sample,samples):
+        imputer = SimpleImputer(strategy='mean')
+        user_sample = user_sample.reshape(1, -1)
+        samples_imputed = imputer.fit_transform(samples)
+        user_imputed = imputer.transform(user_sample)
+        neighbors = NearestNeighbors(n_neighbors=5,algorithm="ball_tree").fit(samples_imputed)
+        distances, indices = neighbors.kneighbors(user_imputed)
+        return indices
+    
+    # param - recommendation indices from get_indices_of_recommendations
+    # return - the index of the best recommendation
+    def most_similar_to_past_recommendations(self,recommendations):
+        return int(recommendations[0][0])
+    
+    # param - index of a wine
+    # return - the wine at that index
+    def get(self,index):
+        return self.wines[index]

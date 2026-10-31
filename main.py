@@ -1,5 +1,8 @@
 # Main GUI runloop
 
+from genericpath import exists
+import json
+from pathlib import Path
 import tkinter as tk
 from tkinter import Listbox, ttk
 from fetch import get_grapes
@@ -7,12 +10,14 @@ import quiz as q
 import recommender as r
 from load import load
 from PIL import Image, ImageTk
+import webbrowser
 
 
 # list of on screen gui objects
 gui_objects = []
 
 recommender = r.recommender()
+PAST_RECOMMENDATIONS_PATH = Path(__file__).resolve().parent / "Data" / "past_recommendations.json"
 
 def main():
     
@@ -137,18 +142,86 @@ def main():
 # Creates a top level recommendation window
 # param - root window
 # param - survey answers
-def get_recommend_window(root,answers):
-    user_sample = recommender.build_user_sample(answers)
-    samples = recommender.build_sample_matrix(answers)
+def get_recommend_window(params):
+    # run learning algo
+    user_sample = recommender.build_user_sample(params)
+    samples = recommender.build_sample_matrix(params)
+    recommendations = recommender.get_indices_of_recommendations(user_sample,samples)
 
-    rec_window = tk.Toplevel(root)
-    rec_window.title("Recommendation")
-    rec_window.geometry("250x250")
+    # open browser searching for the recommended wine
+    final = recommender.most_similar_to_past_recommendations(recommendations)
+    final_entry = recommender.get(final)
+    query = "Wine: " + final_entry["wine"] + " from " + final_entry["country_name"] + " " + final_entry["region_name"]
+    webbrowser.open_new_tab(f"https://www.google.com/search?q={query}")
     
+    # build the recommendation window
+    rec_window = tk.Toplevel()
+    rec_window.geometry("400x150")
+    rec_window.title("Recommendation")
+    rec_window.grid_propagate(False)
+    rec_window.grid_columnconfigure(0, weight=1)
+    
+    # make a quiz with a single question
+    rating_quiz = q.quiz(rec_window)
+    
+    # passing the empty list for gui objects because we don't want these to resize
+    rating = rating_quiz.make_mult_choice_question(
+                        (.013,.01,.01,.01,.01,.01,.01),                
+                        "How would you rate this recommendation?",     
+                        (["Awful",1],
+                            ["Bad",2],
+                            ["Ok",3],
+                            ["Great",4],
+                            ["Amazing",5]),
+                        [])    
+    rating_quiz.make_submit_button(.013,
+                                   "Submit",
+                                   (rating,final_entry),[],
+                                   save_recommendation)     
+    
+# Save recommendation with user rating
+# param - answers list containing a single user rating of a recommendation
+# param - survey answers
+def save_recommendation(params):
+    rating, wine = params
+    recommendation = {**wine, "rating": rating}
 
+    # JSON tedium
+    if PAST_RECOMMENDATIONS_PATH.exists():
+        with PAST_RECOMMENDATIONS_PATH.open("r", encoding="utf-8") as file:
+            contents = file.read()
+        if not contents.strip():
+            existing_data = []
+        else:
+            existing_data = json.loads(contents)
+            if isinstance(existing_data, dict):
+                existing_data = (
+                    [existing_data]
+                    if "wine" in existing_data
+                    else list(existing_data.values())
+                )
+            if not isinstance(existing_data, list) or not all(
+                isinstance(item, dict) for item in existing_data
+            ):
+                raise ValueError("Past recommendations must be a JSON list of wine records")
+    else:
+        existing_data = []
+
+    # make sure we don't have two rating for the same wine
+    for wine in existing_data:
+        if wine["wine"] == recommendation["wine"]:
+            wine["rating"] = recommendation["rating"]
+            break
+    else:
+        existing_data.append(recommendation)
+            
+    # write-back
+    with PAST_RECOMMENDATIONS_PATH.open("w", encoding="utf-8") as file:
+        json.dump(existing_data, file, ensure_ascii=False, indent=4)
+    
 # Resizes all widgets in GUI
 # param - The triggering event
-# param - The root winow
+# param - The root window
 # param - The side panel frame in the root window
 def resize(event, root, side_panel):
     # check event is not the initial setup none call

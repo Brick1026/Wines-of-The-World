@@ -120,26 +120,32 @@ class quiz:
     # param - the lsit of gui objects from main
     # param - the function the submit button calls
     # param - the root window
-    def make_submit_button(self,scaler,button_text,answer_widgets,gui_objects,function):
+    def make_submit_button(self,scaler,button_text,elems,gui_objects,function):
         # when we submit answers, unpack them as their integer values and pass to 
         # function to start recommender algorithm
         def submit_answers():
-            # unpack my widget elements
-            answers = tuple(
+            # unpack my elements
+            params = tuple(
                 # if this is a listBox then we make a list of floats
-                tuple(widget.get(index) for index in widget.curselection())
-                if isinstance(widget, tk.Listbox)
+                tuple(elem.get(index) for index in elem.curselection())
+                if isinstance(elem, tk.Listbox)
                 else (
-                    # before calling n nearest neighbors we will imputer the data
-                    None
-                    if widget.get() in (None,"None")
+                    # case to handle the submit button for a rating
+                    elem
+                    if isinstance(elem,dict)
                     # otherwise assign the float value
-                    else float(widget.get())
+                    else(
+                        # generic cases
+                        None
+                        if elem.get() in (None,"None")
+                        else
+                        float(elem.get())
+                    )
                 )
-                for widget in answer_widgets
+                for elem in elems
             )
             # launch get_recommender window
-            function(self.quiz_frame, answers)
+            function(params)
 
         # build the submit button bound to the passed function
         submit = tk.Button(self.quiz_frame, text=button_text, 
