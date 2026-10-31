@@ -119,8 +119,8 @@ class quiz:
     # param - the survey answer variables and widgets
     # param - the lsit of gui objects from main
     # param - the function the submit button calls
-    # param - the root window
-    def make_submit_button(self,scaler,button_text,elems,gui_objects,function):
+    # param - the window
+    def make_submit_button(self,scaler,button_text,elems,gui_objects,function,window):
         # when we submit answers, unpack them as their integer values and pass to 
         # function to start recommender algorithm
         def submit_answers():
@@ -145,7 +145,7 @@ class quiz:
                 for elem in elems
             )
             # launch get_recommender window
-            function(params)
+            function(window,params)
 
         # build the submit button bound to the passed function
         submit = tk.Button(self.quiz_frame, text=button_text, 

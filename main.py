@@ -132,7 +132,7 @@ def main():
     my_quiz.make_submit_button(.013,
                                "Recommend me!",
                                answers,gui_objects,
-                               get_recommend_window)
+                               get_recommend_window,root)
     
     # configure the lambda event to call resize on configure
     root.bind("<Configure>", lambda event: resize(event, root, side_panel))
@@ -142,7 +142,7 @@ def main():
 # Creates a top level recommendation window
 # param - root window
 # param - survey answers
-def get_recommend_window(params):
+def get_recommend_window(root,params):
     # run learning algo
     user_sample = recommender.build_user_sample(params)
     samples = recommender.build_sample_matrix(params)
@@ -177,12 +177,12 @@ def get_recommend_window(params):
     rating_quiz.make_submit_button(.013,
                                    "Submit",
                                    (rating,final_entry),[],
-                                   save_recommendation)     
+                                   save_recommendation,rec_window)     
     
 # Save recommendation with user rating
 # param - answers list containing a single user rating of a recommendation
 # param - survey answers
-def save_recommendation(params):
+def save_recommendation(top,params):
     rating, wine = params
     recommendation = {**wine, "rating": rating}
 
@@ -218,6 +218,9 @@ def save_recommendation(params):
     # write-back
     with PAST_RECOMMENDATIONS_PATH.open("w", encoding="utf-8") as file:
         json.dump(existing_data, file, ensure_ascii=False, indent=4)
+    
+    top.destroy()
+    top.update()
     
 # Resizes all widgets in GUI
 # param - The triggering event

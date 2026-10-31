@@ -1,30 +1,3 @@
 [
-    {
-        "wine": "Broken Stones",
-        "grapes": [],
-        "sweetness": "Unknown",
-        "type": "Red",
-        "acidity": "High",
-        "abv": "High",
-        "country_name": "United States",
-        "world": "New World",
-        "body": "Full-bodied",
-        "winery_name": "Saxum",
-        "region_name": "Paso Robles",
-        "rating": 5.0
-    },
-    {
-        "wine": "Dolce (Late Harvest)",
-        "grapes": [],
-        "sweetness": "Sweet",
-        "type": "Dessert",
-        "acidity": "High",
-        "abv": "Low",
-        "country_name": "United States",
-        "world": "New World",
-        "body": "Full-bodied",
-        "winery_name": "Dolce",
-        "region_name": "Napa Valley",
-        "rating": 4.0
-    }
+
 ]

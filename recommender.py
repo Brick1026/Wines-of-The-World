@@ -60,7 +60,7 @@ class recommender:
         # very important attribute
         "liked_grapes": {
             "without": 1,
-            "with": 10
+            "with": 15
         }
     }
     
