@@ -1,11 +1,15 @@
 import json
 from pathlib import Path
 from tkinter import N
+import webbrowser
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
 from sklearn.impute import SimpleImputer
+import tkinter as tk
+import quiz as q
 
 MASTER_WINE_DATA_PATH = Path(__file__).resolve().parent / "Data" / "master_wine_data.json"
+PAST_RECOMMENDATIONS_PATH = Path(__file__).resolve().parent / "Data" / "past_recommendations.json"
 
 # Class to take master_wine_data.json and 
 # using the survey answers convert the qualitative data
@@ -98,7 +102,7 @@ class recommender:
     # param - survey results as a tuple of question answers
     # return - 2D NP array with one row representing the user 
     #          sample
-    def build_user_sample(self, answers):
+    def build_user_sample(self,answers):
         # if user gave grape preferences then set to with otherwise without
         grape_preference = self.get_value("liked_grapes","without")
         if (len(answers[6]) == 0):
@@ -140,3 +144,86 @@ class recommender:
     # return - the wine at that index
     def get(self,index):
         return self.wines[index]
+        
+    # Save recommendation with user rating
+    # param - answers list containing a single user rating of a recommendation
+    # param - survey answers
+    def save_recommendation(self,top,params):
+        rating, wine = params
+        recommendation = {**wine, "rating": rating}
+
+        # JSON tedium
+        if PAST_RECOMMENDATIONS_PATH.exists():
+            with PAST_RECOMMENDATIONS_PATH.open("r", encoding="utf-8") as file:
+                contents = file.read()
+            if not contents.strip():
+                existing_data = []
+            else:
+                existing_data = json.loads(contents)
+                if isinstance(existing_data, dict):
+                    existing_data = (
+                        [existing_data]
+                        if "wine" in existing_data
+                        else list(existing_data.values())
+                    )
+                if not isinstance(existing_data, list) or not all(
+                    isinstance(item, dict) for item in existing_data
+                ):
+                    raise ValueError("Past recommendations must be a JSON list of wine records")
+        else:
+            existing_data = []
+
+        # make sure we don't have two rating for the same wine
+        for wine in existing_data:
+            if wine["wine"] == recommendation["wine"]:
+                wine["rating"] = recommendation["rating"]
+                break
+        else:
+            existing_data.append(recommendation)
+                
+        # write-back
+        with PAST_RECOMMENDATIONS_PATH.open("w", encoding="utf-8") as file:
+            json.dump(existing_data, file, ensure_ascii=False, indent=4)
+        
+        top.destroy()
+        top.update()
+        
+    # Creates a top level recommendation window
+    # param - root window
+    # param - survey answers
+    def get_recommend_window(self,root,params):
+        # run learning algo
+        user_sample = self.build_user_sample(params)
+        samples = self.build_sample_matrix(params)
+        recommendations = self.get_indices_of_recommendations(user_sample,samples)
+
+        # open browser searching for the recommended wine
+        final = self.most_similar_to_past_recommendations(recommendations)
+        final_entry = self.get(final)
+        query = "Wine: " + final_entry["wine"] + " from " + final_entry["country_name"] + " " + final_entry["region_name"]
+        webbrowser.open_new_tab(f"https://www.google.com/search?q={query}")
+        
+        # build the recommendation window
+        rec_window = tk.Toplevel()
+        rec_window.geometry("400x150")
+        rec_window.title("Recommendation")
+        rec_window.grid_propagate(False)
+        rec_window.grid_columnconfigure(0, weight=1)
+        
+        # make a quiz with a single question
+        rating_quiz = q.quiz(rec_window)
+        
+        # passing the empty list for gui objects because we don't want these to resize
+        rating = rating_quiz.make_mult_choice_question(
+                            (.013,.01,.01,.01,.01,.01,.01),                
+                            "How would you rate this recommendation?",     
+                            (["Awful",1],
+                                ["Bad",2],
+                                ["Ok",3],
+                                ["Great",4],
+                                ["Amazing",5]),
+                            [])    
+        rating_quiz.make_submit_button(.013,
+                                    "Submit",
+                                    (rating,final_entry),[],
+                                    self.save_recommendation,rec_window)     
