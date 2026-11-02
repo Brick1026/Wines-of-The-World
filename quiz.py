@@ -39,7 +39,7 @@ class quiz:
     def make_mult_choice_question(self,scalers,question,options,gui_objects):
         # begin creating gui
         q1_label = tk.Label(self.quiz_frame,text=question,bg="#EBE9EC")
-        q1_label.grid(row=self.next_slot, column=0, pady=(10, 5))
+        q1_label.grid(row=self.next_slot, column=0, pady=(10, 5),columnspan=2)
         self.next_slot+=1
         q1_label._font_scale = scalers[0]
         gui_objects.append(q1_label)
@@ -47,7 +47,7 @@ class quiz:
         # create frame that holds all the buttons
         q1_frame = tk.Frame(self.quiz_frame)
         q1_frame._font_scale = scalers[1]
-        q1_frame.grid(row=self.next_slot, column=0, sticky="n" )
+        q1_frame.grid(row=self.next_slot, column=0, sticky="n",columnspan=2)
         self.next_slot+=1
         var = tk.StringVar(self.quiz_frame,"None")
         
@@ -76,7 +76,7 @@ class quiz:
     def make_mult_select_question(self,scalers,question,options,gui_objects):
         # begin creating gui
         q1_label = tk.Label(self.quiz_frame,text=question,bg="#EBE9EC")
-        q1_label.grid(row=self.next_slot, column=0, pady=(10, 5))
+        q1_label.grid(row=self.next_slot, column=0, pady=(10, 5),columnspan=2)
         self.next_slot+=1
         q1_label._font_scale = scalers[0]
         gui_objects.append(q1_label)
@@ -84,7 +84,7 @@ class quiz:
         # create frame that holds all the buttons
         q1_frame = tk.Frame(self.quiz_frame)
         q1_frame._font_scale = scalers[1]
-        q1_frame.grid(row=self.next_slot, column=0, sticky="n" )
+        q1_frame.grid(row=self.next_slot, column=0, sticky="n",columnspan=2)
         self.next_slot+=1
         listbox = tk.Listbox(
             q1_frame,
@@ -120,7 +120,8 @@ class quiz:
     # param - the lsit of gui objects from main
     # param - the function the submit button calls
     # param - the window
-    def make_submit_button(self,scaler,button_text,elems,gui_objects,function,window):
+    # param - inc_row - boolean if we want to increment the row number
+    def make_submit_button(self,scaler,button_text,elems,gui_objects,function,window,inc_row):
         # when we submit answers, unpack them as their integer values and pass to 
         # function to start recommender algorithm
         def submit_answers():
@@ -151,23 +152,29 @@ class quiz:
         submit = tk.Button(self.quiz_frame, text=button_text, 
                            command=submit_answers,
                            bg="#EBE9EC")
-        submit.grid(row=self.next_slot, column=0, sticky="nsew",padx=10,pady=10)
+        submit.grid(row=self.next_slot, sticky='nsew', column=0, padx=3,pady=3)
         submit._font_scale = scaler
-        self.next_slot+=1
+        if inc_row:
+            self.next_slot+=1
         gui_objects.append(submit)
     
     
-    # make button to delete user history
+    # make simple button bound to a command 
     # param - int scaler for font size
     # param - text on the button
     # param - a function to bind to the button
     # param - the lsit of gui objects from main
-    # param - the function the submit button calls
-    # param - the window
-    def make_simple_command_button(self,scaler,button_text,function,gui_objects,):
-        submit = tk.Button(self.quiz_frame, text=button_text, 
+    # param - inc_row - boolean if we want to increment the row number
+    # return - the button
+    def make_simple_command_button(self,scaler,button_text,gui_objects,function,inc_row):
+        button = tk.Button(self.quiz_frame, text=button_text, 
                                    command=function,
                                    bg="#EBE9EC")
+        button.grid(row=self.next_slot, sticky='nsew', column=1, padx=3,pady=3)
+        button._font_scale = scaler
+        self.next_slot+=1
+        gui_objects.append(button)
+        return button
         
     
         

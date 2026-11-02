@@ -128,10 +128,16 @@ def main():
             world_preference,
             grape_preference)
 
+    
     my_quiz.make_submit_button(.013,
                                "Recommend me!",
                                answers,gui_objects,
-                               recommender.get_recommend_window,root)
+                               recommender.get_recommend_window,root,False)
+    
+    reset = my_quiz.make_simple_command_button(.013,
+                            "Delete History",
+                            gui_objects,
+                            recommender.reset,True)
     
     # configure the lambda event to call resize on configure
     root.bind("<Configure>", lambda event: resize(event, root, side_panel))

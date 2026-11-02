@@ -226,4 +226,9 @@ class recommender:
         rating_quiz.make_submit_button(.013,
                                     "Submit",
                                     (rating,final_entry),[],
-                                    self.save_recommendation,rec_window)     
+                                    self.save_recommendation,rec_window,False)   
+    
+    # Resets the past_recommendations JSON file 
+    def reset(self):  
+        PAST_RECOMMENDATIONS_PATH.open('w', encoding="utf-8",).close()
+            
