@@ -6,11 +6,6 @@ import recommender as r
 from statistics import mean
 
 class quiz:
-    # the next avaliable row in the frame
-    next_slot = 0
-    
-    # the quiz frame inside of the root declared in main
-    quiz_frame = None
     
     def __init__(self,root):
         # the quiz panel
