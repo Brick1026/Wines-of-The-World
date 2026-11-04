@@ -10,7 +10,6 @@ import quiz as q
 import recommender as r
 from load import load
 from PIL import Image, ImageTk
-import webbrowser
 
 
 # list of on screen gui objects

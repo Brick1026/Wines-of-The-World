@@ -1,0 +1,30 @@
+[
+    {
+        "wine": "Bernkasteler Johannisbrünnchen Eiswein",
+        "grapes": [],
+        "sweetness": "Sweet",
+        "type": "Dessert",
+        "acidity": "High",
+        "abv": "Low",
+        "country_name": "Germany",
+        "world": "Old World",
+        "body": "Light-bodied",
+        "winery_name": "Joh. Jos. Prüm",
+        "region_name": "Mosel",
+        "rating": 4.0
+    },
+        {
+            "wine": "Dolce (Late Harvest)",
+            "grapes": [],
+            "sweetness": "Sweet",
+            "type": "Dessert",
+            "acidity": "High",
+            "abv": "Low",
+            "country_name": "United States",
+            "world": "New World",
+            "body": "Full-bodied",
+            "winery_name": "Dolce",
+            "region_name": "Napa Valley",
+            "rating": 5.0
+        }
+]

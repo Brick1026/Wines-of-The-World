@@ -72,13 +72,15 @@ class recommender:
     # in the JSON file as a python array
     wines = None
 
+    # reads a JSON file and converts the values to my internal format
     # param - the answers, we need to know what grapes they liked
+    # param - the target file to use to build the sample matrix
     # return - np array where each master_wine_json sample has its attributes
     #          assigned numeric values. 2D array and each sample is a row.
-    def build_sample_matrix(self,answers):
+    def build_sample_matrix(self,answers,target):
         arr_samples = []
         # unpack JSON and begin building data matrix
-        with MASTER_WINE_DATA_PATH.open("r", encoding="utf-8") as file:
+        with target.open("r", encoding="utf-8") as file:
             self.wines = json.load(file)
             for wine in self.wines:
                 common_grapes = "without"
@@ -132,13 +134,56 @@ class recommender:
         samples_imputed = imputer.fit_transform(samples)
         user_imputed = imputer.transform(user_sample)
         neighbors = NearestNeighbors(n_neighbors=5,algorithm="ball_tree").fit(samples_imputed)
-        distances, indices = neighbors.kneighbors(user_imputed)
+        _, indices = neighbors.kneighbors(user_imputed)
         return indices
     
     # param - recommendation indices from get_indices_of_recommendations
+    # param - the sample matrix used to run nearest neighbors prior
+    # param - the answers from the user survey
     # return - the index of the best recommendation
-    def most_similar_to_past_recommendations(self,recommendations):
-        return int(recommendations[0][0])
+    def most_similar_to_past_recommendations(self,rec_indices,sample_matrix,answers):
+        
+        # read in my past recommendations 
+        past_recommendations = None
+        with PAST_RECOMMENDATIONS_PATH.open("r", encoding="utf-8") as file:
+            past_recommendations = json.load(file)
+        rec_samples = self.build_sample_matrix(answers,PAST_RECOMMENDATIONS_PATH)
+        ct = np.shape(rec_samples)[0]
+        
+        # behavior depends on the number of saved past recommendations
+        if ct == 1:
+            # put my recommendation samples into a new list
+            # using the recommendation indices
+            # they are already imputered
+            samples = []
+            for idx in rec_indices:
+                samples.append(sample_matrix[idx][:])
+            
+            samples = np.asarray(samples)
+            
+            neighbors = NearestNeighbors(n_neighbors=1,
+                                        algorithm="ball_tree").fit(samples)
+            
+            # impute the recommendation sample
+            imputer = SimpleImputer(strategy='mean')
+            recs_imputed = imputer.transform(rec_samples)
+            
+            _, indices = neighbors.kneighbors(recs_imputed[0][:])
+            
+            if past_recommendations[0]['rating'] > 3:
+                return indices[0]
+            elif past_recommendations[0]['rating'] < 3:
+                return indices[np.size(indices)-1]
+            else:
+                return rec_indices[0]
+            
+        elif ct == 2:
+            # TODO
+            print("todo")
+        else:
+            # TODO
+            print("todo")
+            
     
     # param - index of a wine
     # return - the wine at that index
@@ -194,11 +239,11 @@ class recommender:
     def get_recommend_window(self,root,params):
         # run learning algo
         user_sample = self.build_user_sample(params)
-        samples = self.build_sample_matrix(params)
+        samples = self.build_sample_matrix(params,MASTER_WINE_DATA_PATH)
         recommendations = self.get_indices_of_recommendations(user_sample,samples)
 
         # open browser searching for the recommended wine
-        final = self.most_similar_to_past_recommendations(recommendations)
+        final = self.most_similar_to_past_recommendations(recommendations,params)
         final_entry = self.get(final)
         query = "Wine: " + final_entry["wine"] + " from " + final_entry["country_name"] + " " + final_entry["region_name"]
         webbrowser.open_new_tab(f"https://www.google.com/search?q={query}")
