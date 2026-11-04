@@ -168,12 +168,18 @@ class recommender:
             imputer = SimpleImputer(strategy='mean')
             recs_imputed = imputer.transform(rec_samples)
             
+            # use the imputed sample to find the most similar recommendation
             _, indices = neighbors.kneighbors(recs_imputed[0][:])
             
+            # if our past recommendation was good than prioritize the most similar current recommendation
+            # to this past recommendation
             if past_recommendations[0]['rating'] > 3:
                 return indices[0]
+            # if our past recommendation was bad than prioritize the least similar current recommendation
+            # to this past recommendation
             elif past_recommendations[0]['rating'] < 3:
                 return indices[np.size(indices)-1]
+            # If the past recommendation was just okay then we can simply return the best we found before
             else:
                 return rec_indices[0]
             
