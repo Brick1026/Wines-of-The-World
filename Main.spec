@@ -1,14 +1,11 @@
 # -*- mode: python ; coding: utf-8 -*-
-from pathlib import Path
 
-
-project_root = Path(SPECPATH)
 
 a = Analysis(
-    [str(project_root / "main.py")],
-    pathex=[str(project_root)],
+    ['main.py'],
+    pathex=[],
     binaries=[],
-    datas=[(str(project_root / "graphics" / "Red_Wine.png"), "graphics")],
+    datas=[],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -24,18 +21,17 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name="Wine Curator",
+    name='main',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=False,
+    console=True,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=str(project_root / "graphics" / "Red_Wine.ico"),
 )
 coll = COLLECT(
     exe,
@@ -44,5 +40,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name="Wine Curator",
+    name='main',
 )
