@@ -255,15 +255,16 @@ def map_world(country):
 
 # fetch data from open API
 def fetch():
+    global seen_entries
     # add wines that we have already recommended to seen entries
     with PAST_RECOMMENDATIONS_PATH.open("r", encoding="utf-8") as file:
         contents = file.read()
-    if not contents.strip():
-        seen_entries = {}
-    else:
+    if contents.strip():
         # add previous seen wines to seen_entries init
-        for wine in contents:
+        for wine in json.loads(contents):
             seen_entries[wine.get("id")] = True
+    else:
+        seen_entries = {}
 
     with httpx.Client(timeout=15.0) as client:
         # get list of wines (our catalog)
