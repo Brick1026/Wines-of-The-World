@@ -67,22 +67,25 @@ class recommender:
             "with": 15
         }
     }
-    
-    # assigned when sample matrix is built, contains all of the wines
-    # in the JSON file as a python array
-    wines = None
 
     # reads a JSON file and converts the values to my internal format
     # param - the answers, we need to know what grapes they liked
     # param - the target file to use to build the sample matrix
     # return - np array where each master_wine_json sample has its attributes
     #          assigned numeric values. 2D array and each sample is a row.
+    #
+    
     def build_sample_matrix(self,answers,target):
         arr_samples = []
         # unpack JSON and begin building data matrix
         with target.open("r", encoding="utf-8") as file:
-            self.wines = json.load(file)
-            for wine in self.wines:
+            wines = json.load(file)
+            
+            # only update sample matrix for the object if this is init
+            if target == MASTER_WINE_DATA_PATH:
+                self.wines = wines
+                
+            for wine in wines:
                 common_grapes = "without"
                 # see if there are common grapes between user preferences and sample
                 for grape in wine.get("grapes"):
@@ -106,9 +109,9 @@ class recommender:
     #          sample
     def build_user_sample(self,answers):
         # if user gave grape preferences then set to with otherwise without
-        grape_preference = self.get_value("liked_grapes","without")
+        grape_preference = self.get_value("liked_grapes","with")
         if (len(answers[6]) == 0):
-            grape_preference = self.get_value("liked_grapes","with")
+            grape_preference = self.get_value("liked_grapes","without")
             
         return np.array([answers[0],
                          answers[1],
@@ -127,6 +130,7 @@ class recommender:
     
     # param - user_sample
     # param - samples array
+    # param - the imputer created from the sample matrix
     # return - the recommendation indices ordered from best to worst
     def get_indices_of_recommendations(self,user_sample,samples):
         imputer = SimpleImputer(strategy='mean')
@@ -135,25 +139,30 @@ class recommender:
         user_imputed = imputer.transform(user_sample)
         neighbors = NearestNeighbors(n_neighbors=5,algorithm="ball_tree").fit(samples_imputed)
         _, indices = neighbors.kneighbors(user_imputed)
-        return indices
+        return indices[0], imputer
     
     # param - recommendation indices from get_indices_of_recommendations
     # param - the sample matrix used to run nearest neighbors prior
     # param - the answers from the user survey
+    # param - the imputer used to fit the sample matrix
     # return - the index of the best recommendation
-    def most_similar_to_past_recommendations(self,rec_indices,sample_matrix,answers):
+    def most_similar_to_past_recommendations(self,rec_indices,sample_matrix,answers,imputer):
         
         # read in my past recommendations (to get the rating)
         past_recommendations = None
         with PAST_RECOMMENDATIONS_PATH.open("r", encoding="utf-8") as file:
-            past_recommendations = json.load(file)
-            
+            contents = file.read()
+            if not contents.strip():
+                return rec_indices[0]
+            past_recommendations = json.loads(contents)
+               
         # build a sample matrix in my code's expected format
         past_samples = self.build_sample_matrix(answers,PAST_RECOMMENDATIONS_PATH)
         ct = np.shape(past_samples)[0]
+        # make 2D
+        past_samples = np.atleast_2d(past_samples)
         
-        # impute the past samples since the output of the sample matrix is not imputed
-        imputer = SimpleImputer(strategy='mean')
+        # impute past samples
         past_samples = imputer.transform(past_samples)
         
         # put my recommendation samples into a new list
@@ -164,44 +173,114 @@ class recommender:
             rec_samples.append(sample_matrix[idx][:])
         
         rec_samples = np.asarray(rec_samples)
-                    
+        # make 2D
+        rec_samples = np.atleast_2d(rec_samples)
+        # impute rec samples
+        rec_samples = imputer.transform(rec_samples)
+                     
         # behavior depends on the number of saved past recommendations
         if ct == 1:
             
             # buld a nearest neighbors using current recommendations
-            neighbors = NearestNeighbors(n_neighbors=1,
+            neighbors = NearestNeighbors(n_neighbors=len(rec_samples),
                                         algorithm="ball_tree").fit(rec_samples)
             
             
             # Fit the singular past recommendation
-            _, indices = neighbors.kneighbors(past_samples[0][:])
+            _, indices = neighbors.kneighbors(past_samples)
+            indices = indices[0]
             
             # if our past recommendation was good than prioritize the most similar current recommendation
             # to this past recommendation
             if past_recommendations[0]['rating'] > 3:
-                return indices[0]
+                candidate_position = int(indices[0])
+                master_index = int(rec_indices[candidate_position])
+                return master_index
+            
             # if our past recommendation was bad than prioritize the least similar current recommendation
             # to this past recommendation
             elif past_recommendations[0]['rating'] < 3:
-                return indices[np.size(indices)-1]
+                candidate_position = int(indices[np.size(indices)-1])
+                master_index = int(rec_indices[candidate_position])
+                return master_index
             # If the past recommendation was just okay then we can simply return the best we found before
             else:
                 return rec_indices[0]
             
         elif ct == 2:
             # build a nearest neighbors using past recommendations
-            neighbors = NearestNeighbors(n_neighbors=1,
+            neighbors = NearestNeighbors(n_neighbors=2,
                                         algorithm="ball_tree").fit(past_samples)
             
-            for sample in rec_samples:
-                print("todo")
+            # list because may save muiltiple in case of tie
+            best_ratings = [0]
+            # indices corrospond to best_ratings list
+            indices_of_best_recommendations = []
+            tie = False
+            for index,sample in enumerate(rec_samples):
+                 # Fit the singular past recommendation
+                _, indices = neighbors.kneighbors(np.atleast_2d(sample))
+                indices = indices[0]
+                this_rating = past_recommendations[indices[0]]['rating']
+                if(this_rating > best_ratings[0]):
+                    # clear lists
+                    tie = False
+                    best_ratings = []
+                    indices_of_best_recommendations = []
+                    # Save the index of this sample and its rating
+                    indices_of_best_recommendations.append(index)
+                    best_ratings.append(this_rating)
+                elif(this_rating == best_ratings[0]):
+                    tie = True
+                    indices_of_best_recommendations.append(index)
+                    best_ratings.append(this_rating)
+                else: 
+                    continue
+            # if we have a tie figure out the best of the tie elements
+            if(tie):
+                # return the rec_idx which appears first in rec_indices
+                # AKA the best attribute as defined by the previous step that is 
+                # ALSO in the tie
+                best_position = np.min(indices_of_best_recommendations)
+                return rec_indices[best_position]
+            else:
+                # only one element to return
+                # map back to master wine data array
+                return rec_indices[indices_of_best_recommendations[0]]
         else:
             # build a nearest neighbors using past recommendations
             neighbors = NearestNeighbors(n_neighbors=2,
                                         algorithm="ball_tree").fit(past_samples)
             
-            for sample in rec_samples:
-                print("todo")
+            sample_weights = []
+            for index,sample in enumerate(rec_samples):
+                # Fit the singular past recommendation
+                _, indices = neighbors.kneighbors(np.atleast_2d(sample))
+                indices = indices[0]
+                
+                # add the sum of the two nearest neighbor's weights
+                sample_weights.append(past_recommendations[indices[0]]['rating'] + 
+                                      past_recommendations[indices[1]]['rating'])
+            
+            # convert to np array
+            sample_weights = np.array(sample_weights)
+            max_val = sample_weights.max()
+            indices_of_best_recommendations = np.where(sample_weights == max_val)[0]
+            
+            # see if we tied
+            tie = True if len(indices_of_best_recommendations) > 1 else False
+            
+            # if we have a tie figure out the best of the tie elements
+            if(tie):
+                # return the rec_idx which appears first in rec_indices
+                # AKA the best attribute as defined by the previous step that is 
+                # ALSO in the tie
+                best_position = np.min(indices_of_best_recommendations)
+                return rec_indices[best_position]
+            else:
+                # only one element to return
+                # map back to master wine data array
+                return rec_indices[indices_of_best_recommendations[0]]
             
     
     # param - index of a wine
@@ -259,10 +338,10 @@ class recommender:
         # run learning algo
         user_sample = self.build_user_sample(params)
         samples = self.build_sample_matrix(params,MASTER_WINE_DATA_PATH)
-        recommendations = self.get_indices_of_recommendations(user_sample,samples)
+        recommendations,imputer = self.get_indices_of_recommendations(user_sample,samples)
 
         # open browser searching for the recommended wine
-        final = self.most_similar_to_past_recommendations(recommendations,params)
+        final = self.most_similar_to_past_recommendations(recommendations,samples,params,imputer)
         final_entry = self.get(final)
         query = "Wine: " + final_entry["wine"] + " from " + final_entry["country_name"] + " " + final_entry["region_name"]
         webbrowser.open_new_tab(f"https://www.google.com/search?q={query}")

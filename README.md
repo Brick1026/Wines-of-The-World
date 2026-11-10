@@ -75,8 +75,8 @@ Process:
 4. Once the user submits their survey results the results are used to convert 
     the database samples and user sample to a scikit-learn friendly numeric format using py.recommender.
 
-5. Scikit Learn runs its nearest neighbors to get the 3 best recommendations
-    (these are orders with 1 being the best and 3 being the worst.)
+5. Scikit Learn runs its nearest neighbors to get the 5 best recommendations
+    (these are ordered with 1 being the best and 5 being the worst.)
 
 5. Scikit Learn runs nearest neighbors in one of the following ways to
     filter the previous nearest neighbors by past recommendations.

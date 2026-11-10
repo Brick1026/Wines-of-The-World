@@ -1,30 +1,34 @@
 [
     {
-        "wine": "Bernkasteler Johannisbrünnchen Eiswein",
-        "grapes": [],
-        "sweetness": "Sweet",
-        "type": "Dessert",
-        "acidity": "High",
+        "wine": "Dhroner Hofberger Riesling Sekt Brut",
+        "grapes": [
+            "riesling"
+        ],
+        "sweetness": "Dry",
+        "type": "Sparkling",
+        "acidity": "Medium",
         "abv": "Low",
         "country_name": "Germany",
         "world": "Old World",
         "body": "Light-bodied",
-        "winery_name": "Joh. Jos. Prüm",
+        "winery_name": "Bollig-Lehnert",
         "region_name": "Mosel",
-        "rating": 4.0
+        "rating": 1.0
     },
-        {
-            "wine": "Dolce (Late Harvest)",
-            "grapes": [],
-            "sweetness": "Sweet",
-            "type": "Dessert",
-            "acidity": "High",
-            "abv": "Low",
-            "country_name": "United States",
-            "world": "New World",
-            "body": "Full-bodied",
-            "winery_name": "Dolce",
-            "region_name": "Napa Valley",
-            "rating": 5.0
-        }
+    {
+        "wine": "Special Reserve Riesling",
+        "grapes": [
+            "riesling"
+        ],
+        "sweetness": "Unknown",
+        "type": "White",
+        "acidity": "High",
+        "abv": "Low",
+        "country_name": "United States",
+        "world": "New World",
+        "body": "Light-bodied",
+        "winery_name": "La Chiripada",
+        "region_name": "New Mexico",
+        "rating": 3.0
+    }
 ]
