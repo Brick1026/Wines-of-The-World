@@ -143,33 +143,38 @@ class recommender:
     # return - the index of the best recommendation
     def most_similar_to_past_recommendations(self,rec_indices,sample_matrix,answers):
         
-        # read in my past recommendations 
+        # read in my past recommendations (to get the rating)
         past_recommendations = None
         with PAST_RECOMMENDATIONS_PATH.open("r", encoding="utf-8") as file:
             past_recommendations = json.load(file)
-        rec_samples = self.build_sample_matrix(answers,PAST_RECOMMENDATIONS_PATH)
-        ct = np.shape(rec_samples)[0]
+            
+        # build a sample matrix in my code's expected format
+        past_samples = self.build_sample_matrix(answers,PAST_RECOMMENDATIONS_PATH)
+        ct = np.shape(past_samples)[0]
         
+        # impute the past samples since the output of the sample matrix is not imputed
+        imputer = SimpleImputer(strategy='mean')
+        past_samples = imputer.transform(past_samples)
+        
+        # put my recommendation samples into a new list
+        # using the recommendation indices
+        # they are already imputered
+        rec_samples = []
+        for idx in rec_indices:
+            rec_samples.append(sample_matrix[idx][:])
+        
+        rec_samples = np.asarray(rec_samples)
+                    
         # behavior depends on the number of saved past recommendations
         if ct == 1:
-            # put my recommendation samples into a new list
-            # using the recommendation indices
-            # they are already imputered
-            samples = []
-            for idx in rec_indices:
-                samples.append(sample_matrix[idx][:])
             
-            samples = np.asarray(samples)
-            
+            # buld a nearest neighbors using current recommendations
             neighbors = NearestNeighbors(n_neighbors=1,
-                                        algorithm="ball_tree").fit(samples)
+                                        algorithm="ball_tree").fit(rec_samples)
             
-            # impute the recommendation sample
-            imputer = SimpleImputer(strategy='mean')
-            recs_imputed = imputer.transform(rec_samples)
             
-            # use the imputed sample to find the most similar recommendation
-            _, indices = neighbors.kneighbors(recs_imputed[0][:])
+            # Fit the singular past recommendation
+            _, indices = neighbors.kneighbors(past_samples[0][:])
             
             # if our past recommendation was good than prioritize the most similar current recommendation
             # to this past recommendation
@@ -184,11 +189,19 @@ class recommender:
                 return rec_indices[0]
             
         elif ct == 2:
-            # TODO
-            print("todo")
+            # build a nearest neighbors using past recommendations
+            neighbors = NearestNeighbors(n_neighbors=1,
+                                        algorithm="ball_tree").fit(past_samples)
+            
+            for sample in rec_samples:
+                print("todo")
         else:
-            # TODO
-            print("todo")
+            # build a nearest neighbors using past recommendations
+            neighbors = NearestNeighbors(n_neighbors=2,
+                                        algorithm="ball_tree").fit(past_samples)
+            
+            for sample in rec_samples:
+                print("todo")
             
     
     # param - index of a wine
