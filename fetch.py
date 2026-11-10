@@ -5,11 +5,8 @@ import httpx
 import json
 import re
 import random
-from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
-
-MASTER_WINE_DATA_PATH = Path(__file__).resolve().parent / "Data" / "master_wine_data.json"
-PAST_RECOMMENDATIONS_PATH = Path(__file__).resolve().parent / "Data" / "past_recommendations.json"
+from app_paths import MASTER_WINE_DATA_PATH, PAST_RECOMMENDATIONS_PATH
 
 # list of all distinct grapes found during fetch with an assigned value
 query_grapes = {}

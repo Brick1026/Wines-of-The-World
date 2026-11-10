@@ -1,5 +1,4 @@
 import json
-from pathlib import Path
 from tkinter import N
 import webbrowser
 import numpy as np
@@ -7,9 +6,7 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.impute import SimpleImputer
 import tkinter as tk
 import quiz as q
-
-MASTER_WINE_DATA_PATH = Path(__file__).resolve().parent / "Data" / "master_wine_data.json"
-PAST_RECOMMENDATIONS_PATH = Path(__file__).resolve().parent / "Data" / "past_recommendations.json"
+from app_paths import MASTER_WINE_DATA_PATH, PAST_RECOMMENDATIONS_PATH
 
 # Class to take master_wine_data.json and 
 # using the survey answers convert the qualitative data

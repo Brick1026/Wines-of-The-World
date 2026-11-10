@@ -10,6 +10,7 @@ import quiz as q
 import recommender as r
 from load import load
 from PIL import Image, ImageTk
+from app_paths import resource_path
 
 
 # list of on screen gui objects
@@ -34,7 +35,7 @@ def main():
     # decorative panel
     side_panel = tk.Frame(root)
     # populate decorative panel
-    img = Image.open("graphics\\Red_Wine.png")
+    img = Image.open(resource_path("graphics", "Red_Wine.png"))
     img = img.resize((300, 500), Image.LANCZOS)
     photo = ImageTk.PhotoImage(img)
     img_label = tk.Label(side_panel,image=photo)

@@ -141,14 +141,3 @@ https://github.com/fyipedia/vinofyi
 https://github.com/numpy/numpy 
 https://github.com/python-pillow/Pillow 
 https://github.com/scikit-learn/scikit-learn 
-
-
-    
-
-    
-
-
-    
-        
-
-
