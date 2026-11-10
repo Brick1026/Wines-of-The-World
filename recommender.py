@@ -288,6 +288,10 @@ class recommender:
     def get(self,index):
         return self.wines[index]
         
+    # param - index of a wine
+    def remove(self,index):
+        del self.wines[index]
+    
     # Save recommendation with user rating
     # param - answers list containing a single user rating of a recommendation
     # param - survey answers
@@ -343,9 +347,23 @@ class recommender:
         # open browser searching for the recommended wine
         final = self.most_similar_to_past_recommendations(recommendations,samples,params,imputer)
         final_entry = self.get(final)
+
+        
         query = "Wine: " + final_entry["wine"] + " from " + final_entry["country_name"] + " " + final_entry["region_name"]
         webbrowser.open_new_tab(f"https://www.google.com/search?q={query}")
         
+        # remove this recommendation from the master wine data file so that we avoid double recommendations
+        data = None
+        with MASTER_WINE_DATA_PATH.open("r", encoding="utf-8") as file:
+            contents = file.read()
+            if not contents.strip():
+                data = []
+            else:
+                data = json.loads(contents)   
+        del data[final]
+        with MASTER_WINE_DATA_PATH.open("w", encoding="utf-8") as file:
+            json.dump(data, file, ensure_ascii=False, indent=4)
+                    
         # build the recommendation window
         rec_window = tk.Toplevel()
         rec_window.geometry("400x150")

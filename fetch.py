@@ -9,6 +9,7 @@ from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 
 MASTER_WINE_DATA_PATH = Path(__file__).resolve().parent / "Data" / "master_wine_data.json"
+PAST_RECOMMENDATIONS_PATH = Path(__file__).resolve().parent / "Data" / "past_recommendations.json"
 
 # list of all distinct grapes found during fetch with an assigned value
 query_grapes = {}
@@ -254,7 +255,15 @@ def map_world(country):
 
 # fetch data from open API
 def fetch():
-    seen_entries.clear()
+    # add wines that we have already recommended to seen entries
+    with PAST_RECOMMENDATIONS_PATH.open("r", encoding="utf-8") as file:
+        contents = file.read()
+    if not contents.strip():
+        seen_entries = {}
+    else:
+        # add previous seen wines to seen_entries init
+        for wine in contents:
+            seen_entries[wine.get("id")] = True
 
     with httpx.Client(timeout=15.0) as client:
         # get list of wines (our catalog)
@@ -311,7 +320,8 @@ def random_thread(catalog):
         "world": map_world(wine.get("country_name")),
         "body": wine.get("body"),
         "winery_name": wine.get("winery_name"),
-        "region_name": wine.get("region_name")
+        "region_name": wine.get("region_name"),
+        "id": wine.get("id")
     }
     with _WRITE_LOCK:
         # save grapes in grape hashset
