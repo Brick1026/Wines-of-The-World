@@ -152,6 +152,8 @@ class recommender:
             if not contents.strip():
                 return rec_indices[0]
             past_recommendations = json.loads(contents)
+            if not past_recommendations:
+                return rec_indices[0]
                
         # build a sample matrix in my code's expected format
         past_samples = self.build_sample_matrix(answers,PAST_RECOMMENDATIONS_PATH)

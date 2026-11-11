@@ -1,6 +1,28 @@
 Basic Overview:
 This application is a program designed to curate wines for you based on an initial survey.
 There is an element of randomness to the decision algorithm to allow for unique results on repeat usage. Based on your response to the recommendations the algorithm is further adjusted to filter the results of your search on subsequent usage.
+
+Running the Program: 
+I have included a number of files. There are two avenues to run my program: 
+ 
+1.  Download python and then use the pip installer to download the following packages. Run 
+main and you are good to go. This is a lot of work, especially for someone who isn’t tech 
+savvy. I recommend option two. 
+ 
+httpx 
+numpy 
+scikit-learn 
+Pillow 
+Tkinter 
+Vinofyi api 
+ 
+2.  I have packaged my program conveniently into a .exe so that you don’t have to install 
+anything. Your antivirus will likely flag this because it's a random program created by me. 
+You will have to bypass this warning, and once you do you should not need to install 
+anything as long as you are running the program on a 64 bit (90% of machines today) 
+windows machine. Simply run the program Curator.exe and it builds the necessary file 
+directories for you. 
+
 Definitions:
 
 Thread - A thread is a singular logical processor. Modern computers contain multiple processors. 
@@ -52,6 +74,11 @@ past_recommendations.json - Location saving past recommendations and how the use
 master_wine_data.json - Holds the result of the massive query on program start
 
 Red_wine.png - Public domain image of a glass of red wine.
+
+Building the Windows application:
+1. Install the dependencies with `python -m pip install -r requirements.txt`.
+2. From the project directory, run `python -m PyInstaller --noconfirm Main.spec`.
+3. Run `dist\Wine Curator\Wine Curator.exe`. The spec keeps the console enabled so startup errors remain visible; set `console=False` in `Main.spec` after debugging if you want a GUI-only launch.
 
 Nearest Neighbors Attributes:
        "type"
